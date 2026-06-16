@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@paper-design/shaders-react": "^0.0.76",
     "@remotion/cli": "4.0.477",
     "@remotion/motion-blur": "^4.0.477",
     "@remotion/tailwind-v4": "4.0.477",

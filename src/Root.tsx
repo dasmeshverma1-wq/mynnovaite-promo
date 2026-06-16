@@ -4,6 +4,7 @@ import { z } from "zod";
 import { CameraMotionBlur } from "@remotion/motion-blur";
 import { MyComposition } from "./Composition";
 import { TeamBuild } from "./TeamBuild";
+import { SfxLayer } from "./Sfx";
 
 // Controls shown in the Studio's right-hand "Props" panel.
 //  • motionBlur   — master on/off checkbox
@@ -18,13 +19,19 @@ export const myCompSchema = z.object({
 // Whole-video motion blur — samples sub-frames so every movement blurs naturally.
 // When `motionBlur` is off, the composition renders straight through (faster, crisp).
 const MyCompWithOptions: React.FC<z.infer<typeof myCompSchema>> = ({ motionBlur, shutterAngle, samples }) => {
-  if (!motionBlur) {
-    return <MyComposition />;
-  }
+  // SFX lives OUTSIDE CameraMotionBlur — motion blur re-renders its children at
+  // sub-frame offsets, which would multiply/echo any <Audio> placed inside it.
   return (
-    <CameraMotionBlur shutterAngle={shutterAngle} samples={samples}>
-      <MyComposition />
-    </CameraMotionBlur>
+    <>
+      {motionBlur ? (
+        <CameraMotionBlur shutterAngle={shutterAngle} samples={samples}>
+          <MyComposition />
+        </CameraMotionBlur>
+      ) : (
+        <MyComposition />
+      )}
+      <SfxLayer />
+    </>
   );
 };
 

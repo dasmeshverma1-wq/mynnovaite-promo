@@ -1,4 +1,5 @@
 import React from "react";
+import { GradientBackground } from "./components/ui/paper-design-shader-background";
 import {
   useCurrentFrame,
   useVideoConfig,
@@ -780,6 +781,8 @@ export const MyComposition = () => {
     <AbsoluteFill
       style={{ background: T.paper, overflow: "hidden", fontFamily: T.font }}
     >
+      {/* ── Animated grain-gradient backdrop (dark/brand, frame-driven) ── */}
+      <GradientBackground />
       {/* ── Dot grid background (site pattern) ── */}
       <div
         style={{
@@ -788,49 +791,6 @@ export const MyComposition = () => {
           backgroundImage:
             "radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)",
           backgroundSize: "28px 28px",
-          pointerEvents: "none",
-        }}
-      />
-      {/* ── Mesh gradient blobs (site .hero-mesh) ── */}
-      <div
-        style={{
-          position: "absolute",
-          top: "-80px",
-          right: "-80px",
-          width: 600,
-          height: 600,
-          borderRadius: "50%",
-          background: T.accent,
-          opacity: 0.2,
-          filter: "blur(90px)",
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: "-80px",
-          left: "-80px",
-          width: 700,
-          height: 700,
-          borderRadius: "50%",
-          background: T.purple,
-          opacity: 0.18,
-          filter: "blur(90px)",
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: "40%",
-          left: "30%",
-          width: 500,
-          height: 500,
-          borderRadius: "50%",
-          background: "#F59E0B",
-          opacity: 0.08,
-          filter: "blur(90px)",
           pointerEvents: "none",
         }}
       />
@@ -1438,7 +1398,7 @@ export const MyComposition = () => {
               style={{
                 display: "flex",
                 justifyContent: "center",
-                gap: 24,
+                gap: 32,
                 height: "100%",
               }}
             >
@@ -1448,7 +1408,7 @@ export const MyComposition = () => {
                     key={ci}
                     style={{
                       position: "relative",
-                      width: 336,
+                      width: 318,
                       overflow: "hidden",
                     }}
                   >
@@ -1468,19 +1428,19 @@ export const MyComposition = () => {
                         <div
                           key={i}
                           style={{
-                            background: "rgba(255,255,255,0.035)",
-                            border: `1px solid ${T.line2}`,
-                            borderRadius: 24,
-                            padding: 32,
-                            boxShadow: "0 12px 32px rgba(0,0,0,0.35)",
+                            background: "rgba(255,255,255,0.02)",
+                            border: "1px solid rgba(255,255,255,0.05)",
+                            borderRadius: 20,
+                            padding: "26px 26px 24px",
+                            boxShadow: "0 6px 18px rgba(0,0,0,0.18)",
                           }}
                         >
                           <p
                             style={{
                               margin: 0,
-                              fontSize: 17,
-                              lineHeight: 1.6,
-                              color: T.mute1,
+                              fontSize: 15,
+                              lineHeight: 1.58,
+                              color: T.mute2,
                               fontWeight: 400,
                             }}
                           >
@@ -1490,15 +1450,15 @@ export const MyComposition = () => {
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 12,
-                              marginTop: 22,
+                              gap: 11,
+                              marginTop: 18,
                             }}
                           >
                             <Img
                               src={idea.img}
                               style={{
-                                width: 44,
-                                height: 44,
+                                width: 38,
+                                height: 38,
                                 borderRadius: "50%",
                                 objectFit: "cover",
                               }}
