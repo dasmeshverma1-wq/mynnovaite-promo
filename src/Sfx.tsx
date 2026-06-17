@@ -1,5 +1,5 @@
 import React from "react";
-import { Audio, Sequence, staticFile } from "remotion";
+import { Audio, Sequence, staticFile, interpolate } from "remotion";
 
 // Key-moment sound design (real composition frames — the audio layer is unaffected
 // by the 2× virtual frame space the visuals use internally).
@@ -10,12 +10,26 @@ const HITS: Hit[] = [
   { from: 140, src: "sfx/whoosh.wav",      volume: 0.5,  label: "intro lifts away" },
   { from: 298, src: "sfx/whoosh.wav",      volume: 0.5,  label: "squad rises" },
   { from: 547, src: "sfx/whoosh.wav",      volume: 0.55, label: "prize cards rise" },
-  { from: 560, src: "sfx/ding.wav",        volume: 0.5,  label: "winner card lands" },
-  { from: 660, src: "sfx/whip.wav",        volume: 0.5,  label: "Register stamps in" },
+  { from: 675, src: "sfx/whoosh.wav",      volume: 0.5,  label: "speakers carousel enters" },
+  { from: 727, src: "sfx/whoosh.wav",      volume: 0.32, label: "carousel slide → speaker 2" },
+  { from: 775, src: "sfx/whoosh.wav",      volume: 0.32, label: "carousel slide → speaker 3" },
+  { from: 840, src: "sfx/whoosh.wav",      volume: 0.5,  label: "WiT orbital ripples in" },
+  { from: 955, src: "sfx/whip.wav",        volume: 0.5,  label: "Register stamps in" },
 ];
 
 export const SfxLayer: React.FC = () => (
   <>
+    {/* Fun tech background music — gentle fade-in at the open, fade-out into the close.
+        Kept low so the key SFX still punch through. */}
+    <Audio
+      src={staticFile("music/silicon-pulse.mp3")}
+      volume={(f) =>
+        interpolate(f, [0, 24, 1034, 1059], [0, 0.3, 0.3, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        })
+      }
+    />
     {HITS.map((h, i) => (
       <Sequence key={i} from={h.from} name={`sfx: ${h.label}`}>
         <Audio src={staticFile(h.src)} volume={h.volume} />

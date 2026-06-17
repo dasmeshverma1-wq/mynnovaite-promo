@@ -3,6 +3,7 @@ import { Composition } from "remotion";
 import { z } from "zod";
 import { CameraMotionBlur } from "@remotion/motion-blur";
 import { MyComposition } from "./Composition";
+import { MyCompositionVertical } from "./CompositionVertical";
 import { TeamBuild } from "./TeamBuild";
 import { SfxLayer } from "./Sfx";
 
@@ -35,6 +36,22 @@ const MyCompWithOptions: React.FC<z.infer<typeof myCompSchema>> = ({ motionBlur,
   );
 };
 
+// Same wrapper for the 9:16 vertical cut.
+const MyCompWithOptionsVertical: React.FC<z.infer<typeof myCompSchema>> = ({ motionBlur, shutterAngle, samples }) => {
+  return (
+    <>
+      {motionBlur ? (
+        <CameraMotionBlur shutterAngle={shutterAngle} samples={samples}>
+          <MyCompositionVertical />
+        </CameraMotionBlur>
+      ) : (
+        <MyCompositionVertical />
+      )}
+      <SfxLayer />
+    </>
+  );
+};
+
 export const RemotionRoot: React.FC = () => {
   return (
     <>
@@ -43,10 +60,20 @@ export const RemotionRoot: React.FC = () => {
         component={MyCompWithOptions}
         schema={myCompSchema}
         defaultProps={{ motionBlur: true, shutterAngle: 360, samples: 2 }}
-        durationInFrames={760}
+        durationInFrames={1060}
         fps={30}
         width={1280}
         height={720}
+      />
+      <Composition
+        id="MyCompVertical"
+        component={MyCompWithOptionsVertical}
+        schema={myCompSchema}
+        defaultProps={{ motionBlur: true, shutterAngle: 360, samples: 2 }}
+        durationInFrames={1060}
+        fps={30}
+        width={1080}
+        height={1920}
       />
       <Composition
         id="TeamBuild"

@@ -1,5 +1,6 @@
 import React from "react";
 import { GradientBackground } from "./components/ui/paper-design-shader-background";
+import { ShinyButton } from "./components/ui/shiny-button";
 import {
   useCurrentFrame,
   useVideoConfig,
@@ -11,12 +12,10 @@ import {
 } from "remotion";
 import {
   PUSH_IN,
-  POP,
   popIn,
   fadeScaleIn,
   fadeScaleOut,
   DRIFT,
-  SWIFT,
 } from "./motion";
 import { Character, type Tint } from "./TeamBuild";
 
@@ -26,7 +25,7 @@ const EO = PUSH_IN;
 const EI = Easing.in(Easing.quad);
 
 // ─── Brand design tokens ──────────────────────────────────────────────────────
-const T = {
+export const T = {
   paper: "#080612", // --paper
   paper2: "#0F0E1C", // --paper-2
   paper3: "#171528", // --paper-3
@@ -40,24 +39,26 @@ const T = {
   line2: "rgba(255,255,255,0.09)",
   line3: "rgba(255,255,255,0.15)",
   font: "'Inter Tight', -apple-system, sans-serif",
-  head: "'Outfit', 'Inter Tight', sans-serif", // clean, open display font for big headings
+  head: "'Outfit', 'Inter Tight', sans-serif", // clean, open font for medium headings & names
+  // Dominant, all-caps editorial display face for the big scene headings (tall/condensed).
+  display: "'Bebas Neue', 'Outfit', sans-serif",
   grad: "linear-gradient(95deg, #FF3F6C, #AE33FF)", // primary gradient
   gradLong: "linear-gradient(95deg, #FF3F6C 0%, #AE33FF 50%, #F59E0B 100%)",
 };
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const BASE = "https://dasmeshverma1-wq.github.io/New-Hackerramp";
-const LOGO_URL = `${BASE}/images/Frame%20632872.svg`;
+export const LOGO_URL = `${BASE}/images/Frame%20632872.svg`;
 // Bundled locally (public/medals) so they load instantly and never flicker
 // under motion blur / live playback — remote fetches drop out across sub-frames.
-const MEDAL_1_URL = staticFile("medals/medal-1st-place.png");
-const MEDAL_2_URL = staticFile("medals/medal-2nd-place.png");
-const MEDAL_3_URL = staticFile("medals/medal-3rd-place.png");
-const LOGO_W = 480;
-const LOGO_H = Math.round(LOGO_W * (158 / 878));
+export const MEDAL_1_URL = staticFile("medals/medal-1st-place.png");
+export const MEDAL_2_URL = staticFile("medals/medal-2nd-place.png");
+export const MEDAL_3_URL = staticFile("medals/medal-3rd-place.png");
+export const LOGO_W = 480;
+export const LOGO_H = Math.round(LOGO_W * (158 / 878));
 
 // ─── Background particles ────────────────────────────────────────────────────
-const SUBTLE_PX = [
+export const SUBTLE_PX = [
   { x: 7, y: 14, r: 2, c: T.accent, sp: 0.031 },
   { x: 22, y: 72, r: 1.5, c: T.purple, sp: 0.042 },
   { x: 38, y: 30, r: 1, c: T.accent, sp: 0.037 },
@@ -71,14 +72,14 @@ const SUBTLE_PX = [
 ];
 
 // ─── Scene 3 – How It Works (3-step connected stepper, dark theme) ───────────
-const STEPS = [
+export const STEPS = [
   { title: "Propose an Idea", glow: "174,51,255" }, // purple
   { title: "Build Your Team", glow: "255,63,108" }, // pink
   { title: "Ship It", glow: "200,90,255" }, // light purple
 ];
 
 // White line icons (one per step) read clean on the dark glass tiles.
-const StepIcon: React.FC<{ i: number }> = ({ i }) => {
+export const StepIcon: React.FC<{ i: number }> = ({ i }) => {
   const p = {
     fill: "none",
     stroke: "#fff",
@@ -102,11 +103,18 @@ const StepIcon: React.FC<{ i: number }> = ({ i }) => {
         </g>
       )}
       {i === 2 && (
+        // upright rocket — symmetric body, symmetric swept wings, centred flame
         <g {...p}>
-          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
-          <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-          <path d="M15 12v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+          {/* body + nose cone */}
+          <path d="M12 2.5c2.7 2.6 3.9 5.9 3.9 8.8 0 2-.6 3.4-1.5 4.4H9.6c-.9-1-1.5-2.4-1.5-4.4 0-2.9 1.2-6.2 3.9-8.8z" />
+          {/* window */}
+          <circle cx="12" cy="9.3" r="1.7" />
+          {/* left wing */}
+          <path d="M8.1 13.1c-2 .9-3.1 2.8-3 5.1 1.8-.4 3.1-1.4 3.4-3" />
+          {/* right wing */}
+          <path d="M15.9 13.1c2 .9 3.1 2.8 3 5.1-1.8-.4-3.1-1.4-3.4-3" />
+          {/* exhaust flame */}
+          <path d="M10.6 16.2 12 19.5l1.4-3.3" />
         </g>
       )}
     </svg>
@@ -230,66 +238,21 @@ const TeamPerson: React.FC<{
   );
 };
 
-// ─── Scene 4 – Idea Bazaar (minimal testimonial-style cards) ─────────────────
-const IDEAS = [
-  {
-    text: "Smart sizing from body measurements and purchase history — fewer returns, happier customers.",
-    name: "Kavya Iyer",
-    role: "Product",
-    img: "https://randomuser.me/api/portraits/women/1.jpg",
-  },
-  {
-    text: "Upload any photo and instantly surface visually similar items, powered by multimodal AI.",
-    name: "Aryan Kapoor",
-    role: "Engineering",
-    img: "https://randomuser.me/api/portraits/men/2.jpg",
-  },
-  {
-    text: "AI-generated outfits that blend your existing wardrobe with fresh Myntra picks.",
-    name: "Arjun Sharma",
-    role: "Engineering",
-    img: "https://randomuser.me/api/portraits/men/4.jpg",
-  },
-  {
-    text: "Real-time warehouse heatmaps that route pickers along the shortest possible path.",
-    name: "Priya Patel",
-    role: "Design",
-    img: "https://randomuser.me/api/portraits/women/3.jpg",
-  },
-  {
-    text: "Time-limited exclusive drops for loyal customers — urgency that actually rewards.",
-    name: "Rohit Kumar",
-    role: "Product",
-    img: "https://randomuser.me/api/portraits/men/5.jpg",
-  },
-  {
-    text: "A fully automated return — pickup scheduled, label printed, courier sent, zero clicks.",
-    name: "Neha Singh",
-    role: "Data Science",
-    img: "https://randomuser.me/api/portraits/women/6.jpg",
-  },
-  {
-    text: "Gift wishlists with AI-curated suggestions for friends and family.",
-    name: "Amit Shah",
-    role: "Product",
-    img: "https://randomuser.me/api/portraits/men/7.jpg",
-  },
-  {
-    text: "Chat-first shopping: describe what you want in plain words, get a curated rail back.",
-    name: "Riya Mehta",
-    role: "UX",
-    img: "https://randomuser.me/api/portraits/women/8.jpg",
-  },
-  {
-    text: "ML sorting that predicts the optimal bin placement for faster same-day dispatch.",
-    name: "Dev Anand",
-    role: "Engineering",
-    img: "https://randomuser.me/api/portraits/men/9.jpg",
-  },
+// ─── Scene 4 – Idea Bazaar (idea cards with an upvote action) ────────────────
+export const IDEAS = [
+  { text: "Smart sizing from body measurements and purchase history — fewer returns, happier customers.", votes: 128 },
+  { text: "Upload any photo and instantly surface visually similar items, powered by multimodal AI.", votes: 94 },
+  { text: "AI-generated outfits that blend your existing wardrobe with fresh Myntra picks.", votes: 211 },
+  { text: "Real-time warehouse heatmaps that route pickers along the shortest possible path.", votes: 56 },
+  { text: "Time-limited exclusive drops for loyal customers — urgency that actually rewards.", votes: 173 },
+  { text: "A fully automated return — pickup scheduled, label printed, courier sent, zero clicks.", votes: 88 },
+  { text: "Gift wishlists with AI-curated suggestions for friends and family.", votes: 42 },
+  { text: "Chat-first shopping: describe what you want in plain words, get a curated rail back.", votes: 147 },
+  { text: "ML sorting that predicts the optimal bin placement for faster same-day dispatch.", votes: 63 },
 ];
 
 // ─── Scene 5 – Podium (2nd left · 1st centre · 3rd right) ───────────────────
-const PODIUM_CARDS = [
+export const PODIUM_CARDS = [
   {
     rank: "2ND PLACE",
     event: "Grand Finale · MynnovAIte 2026",
@@ -328,8 +291,145 @@ const PODIUM_CARDS = [
   },
 ];
 
+// ─── Scene S_SPEAKERS – speaker roster (coverflow carousel) ──────────────────
+export const SPEAKERS = [
+  {
+    name: "Nitesh Jain",
+    role: "Senior Principal Engineer",
+    company: "Razorpay",
+    img: staticFile("speakers/nitesh-jain.jpeg"),
+    logo: staticFile("speakers/logo-razorpay.png"),
+  },
+  {
+    name: "Shamik Sharma",
+    role: "Head of Product (SVP)",
+    company: "Atlassian",
+    img: staticFile("speakers/shamik-sharma.jpeg"),
+    logo: staticFile("speakers/logo-atlassian.png"),
+  },
+  {
+    name: "Pratyush Kumar",
+    role: "Co-Founder",
+    company: "Sarvam AI",
+    img: staticFile("speakers/pratyush-kumar.jpeg"),
+    logo: staticFile("speakers/logo-sarvam.png"),
+  },
+];
+
+// ─── Scene S_WIT – Women in Tech (orbital "Speakers Circle") ─────────────────
+// Mock placeholder avatars (no real photos) orbit on concentric rings while
+// decorative bokeh drifts — an auto-playing version of the site's scroll-reveal.
+export const AV_TINTS: Record<string, { hi: string; lo: string; glow: string }> = {
+  pink: { hi: "#ff8fbe", lo: "#c52d68", glow: "rgba(255,45,120,0.55)" },
+  purple: { hi: "#cda6ff", lo: "#7a2adf", glow: "rgba(176,50,255,0.55)" },
+  violet: { hi: "#a797ff", lo: "#5a36c8", glow: "rgba(120,90,240,0.50)" },
+  rose: { hi: "#ffaecf", lo: "#d23a73", glow: "rgba(255,95,160,0.50)" },
+  indigo: { hi: "#9aa4ff", lo: "#4044c4", glow: "rgba(90,100,240,0.50)" },
+  steel: { hi: "#c6d0ee", lo: "#5a6694", glow: "rgba(150,160,200,0.45)" },
+};
+
+// styled female mannequin placeholders (faceless, fashion outfits) — 9 variants
+export const WIT_FEMALES = [
+  staticFile("speakers/wit-1.jpeg"),
+  staticFile("speakers/wit-2.jpeg"),
+  staticFile("speakers/wit-3.jpeg"),
+  staticFile("speakers/wit-4.jpeg"),
+  staticFile("speakers/wit-5.jpeg"),
+  staticFile("speakers/wit-6.jpeg"),
+  staticFile("speakers/wit-7.jpeg"),
+  staticFile("speakers/wit-8.jpeg"),
+  staticFile("speakers/wit-9.jpeg"),
+];
+const AV_TINT_CYCLE: (keyof typeof AV_TINTS)[] = [
+  "rose",
+  "pink",
+  "violet",
+  "purple",
+  "indigo",
+];
+
+export const MockAvatar: React.FC<{
+  size: number;
+  img: string;
+  tint: keyof typeof AV_TINTS;
+}> = ({ size, img, tint }) => {
+  const c = AV_TINTS[tint];
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        overflow: "hidden",
+        border: "2px solid rgba(255,255,255,0.22)",
+        boxShadow: `0 10px 26px rgba(0,0,0,0.5), 0 0 ${size * 0.4}px ${c.glow}`,
+      }}
+    >
+      <Img
+        src={img}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "center top",
+        }}
+      />
+    </div>
+  );
+};
+
+// Concentric "shells" of the Leadership Circle. The 3 inner faces (shell 0) are the
+// confirmed leaders, fully sharp. Each outer shell recedes — progressively blurred &
+// faded — filling the canvas so the circle reads as a large community fanning outward.
+export const WIT_SHELLS = [
+  { r: 214, count: 3, blur: 0, fade: 1.0, off: -56, named: true },
+  { r: 336, count: 3, blur: 1.8, fade: 0.78, off: 26, named: false },
+  { r: 458, count: 4, blur: 4, fade: 0.54, off: 60, named: false },
+  { r: 584, count: 4, blur: 7, fade: 0.38, off: 30, named: false },
+  { r: 712, count: 4, blur: 10, fade: 0.24, off: 64, named: false },
+];
+export const WIT_LEADERS = [
+  { name: "Sharon Pais", role: "Head, Myntra" },
+  { name: "Vindhya", role: "Sr. Dir Engineering" },
+  { name: "To be decided", role: "" },
+];
+type WitDot = {
+  r: number;
+  angle: number;
+  blur: number;
+  fade: number;
+  shell: number;
+  img: string;
+  tint: keyof typeof AV_TINTS;
+  name?: string;
+  role?: string;
+};
+export const WIT_AVATAR_SIZE = 130; // every face is the same size; depth comes from blur/fade
+export const WIT_DOTS: WitDot[] = (() => {
+  const out: WitDot[] = [];
+  let k = 0;
+  WIT_SHELLS.forEach((s, si) => {
+    for (let i = 0; i < s.count; i++) {
+      const leader = s.named ? WIT_LEADERS[i] : undefined;
+      out.push({
+        r: s.r,
+        angle: s.off + (360 / s.count) * i,
+        blur: s.blur,
+        fade: s.fade,
+        shell: si,
+        img: WIT_FEMALES[k % WIT_FEMALES.length],
+        tint: AV_TINT_CYCLE[k % AV_TINT_CYCLE.length],
+        name: leader?.name,
+        role: leader?.role,
+      });
+      k++;
+    }
+  });
+  return out;
+})();
+
 // ─── Wave helper — replicates site's waveFromSource keyframe ─────────────────
-const waveForProgress = (p: number) => ({
+export const waveForProgress = (p: number) => ({
   scale: interpolate(p, [0, 0.1, 0.55, 0.8, 1.0], [1.0, 1.3, 2.0, 2.7, 3.2], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -343,7 +443,7 @@ const waveForProgress = (p: number) => ({
     extrapolateRight: "clamp",
   }),
 });
-const WAVE_PERIOD = 150; // long, calm cycle (in 2× frame space) for a smooth pulse
+export const WAVE_PERIOD = 240; // long, calm cycle (in 2× frame space) for a smooth, slow pulse
 
 // ─────────────────────────────────────────────────────────────────────────────
 export const MyComposition = () => {
@@ -361,8 +461,12 @@ export const MyComposition = () => {
   const S4 = TEAM + TEAM_LEN; // Idea Bazaar
   const S4_LEN = 220;
   const S5 = S4 + S4_LEN; // Prizes
-  const S5_LEN = 216;
-  const S6 = S5 + S5_LEN; // CTA   (total = S6 + 210 = 1520 → 760 real frames)
+  const S5_LEN = 256; // longer hold so the prizes read (cards don't leave too early)
+  const S_SPEAKERS = S5 + S5_LEN;            // Speakers & Mentors  (virtual 1350)
+  const S_SPEAKERS_LEN = 330; // coverflow carousel: 3 holds + 2 slides
+  const S_WIT = S_SPEAKERS + S_SPEAKERS_LEN; // Women in Tech       (virtual 1680)
+  const S_WIT_LEN = 230; // orbital wave: ripple in → hold → ripple out
+  const S6 = S_WIT + S_WIT_LEN; // CTA (total = S6 + 210 = 2120 → 1060 real frames)
 
   // ══════════════════════════════════════════════════════════════════════════
   // INTRO — "Got an idea?" morphs into a "Create a squad" button
@@ -383,67 +487,55 @@ export const MyComposition = () => {
     extrapolateRight: "clamp",
     easing: EO,
   });
-  // "Got an idea?" appears (centred as a group)
-  const gotOp = interpolate(frame, [10, 38], [0, 1], {
+  // "Got [💡] an idea?" — each piece rises up from below AND slides a touch left into
+  // its final centred spot, one by one (same fade-up feel as the closing CTA words).
+  const introEnter = (delay: number) => ({
+    op: interpolate(frame, [delay, delay + 22], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO }),
+    y: interpolate(frame, [delay, delay + 32], [46, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT }),
+    x: interpolate(frame, [delay, delay + 32], [30, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT }),
+  });
+  const enterGot = introEnter(8);
+  const enterBulb = introEnter(24);
+  const enterIdea = introEnter(40);
+  // "Got [💡 square] an idea?" — a proper-sized bulb SQUARE button pops in between the
+  // words, then the square WIDENS into the "Create a squad" rectangle while "Got"
+  // slides left, "an idea?" slides right, and the emoji swaps up for the label.
+  const bulbOp = enterBulb.op; // emoji fades in with the square's entrance
+  // "an idea?" is wider than "Got", so the box is shifted LEFT of screen-centre to keep
+  // the whole "Got [box] an idea?" GROUP centred; it slides to true centre as it morphs.
+  const boxOffsetX = interpolate(frame, [98, 152], [-86, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EO,
   });
-  const gotY = interpolate(frame, [10, 38], [26, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: DRIFT,
-  });
-  // bulb pill pops in between the words, then expands into the wide button
-  const boxW = interpolate(frame, [50, 90, 100, 156], [10, 124, 124, 392], {
+  // morph: the square (96) widens into the wide button (392); height stays 96
+  const boxW = interpolate(frame, [98, 152], [96, 392], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EO,
   });
-  const boxH = interpolate(frame, [50, 90], [10, 96], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: POP,
-  });
-  const boxOp = interpolate(frame, [50, 66], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: EO,
-  });
-  const bulbOp = interpolate(frame, [62, 86], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: EO,
-  });
-  // the whole hand-off is synced inside one window (96–158):
-  // button slides from group-centre → true screen centre, words clear, emoji & label swap
-  const boxOffsetX = interpolate(frame, [96, 152], [-74, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: EO,
-  });
-  const sideFade = interpolate(frame, [96, 134], [1, 0], {
+  const sideFade = interpolate(frame, [96, 132], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EI,
   });
-  const sideShift = interpolate(frame, [96, 138], [0, 80], {
+  const sideShift = interpolate(frame, [96, 140], [0, 64], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EI,
   });
-  // emoji and label roll up TOGETHER (slot-reel swap) — no empty gap between them
-  const emojiY = interpolate(frame, [106, 150], [0, -84], {
+  // emoji rolls up & out the top, label rolls up from below (slot-reel swap)
+  const emojiY = interpolate(frame, [104, 148], [0, -88], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EO,
-  }); // up & out the top
-  const textY = interpolate(frame, [106, 150], [84, 0], {
+  });
+  const textY = interpolate(frame, [104, 148], [88, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EO,
-  }); // up from below
-  const ctaTxtOp = interpolate(frame, [112, 146], [0, 1], {
+  });
+  const ctaTxtOp = interpolate(frame, [110, 146], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EO,
@@ -483,6 +575,13 @@ export const MyComposition = () => {
     extrapolateRight: "clamp",
     easing: EO,
   });
+  // shiny-button hover buildup — the shine widens & blooms as the cursor approaches,
+  // staying lit through the click; `curClick` doubles as the press/impact value.
+  const btnHover = interpolate(frame, [228, 256], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: EO,
+  });
 
   // ── Logo — small at the top; fades in as the intro hands off to the content ──
   const logoOpacity = interpolate(frame, [INTRO - 18, INTRO + 8], [0, 1], {
@@ -510,7 +609,7 @@ export const MyComposition = () => {
   // SCENE 3 — How it works (longer hold so it reads on a far screen)
   // ══════════════════════════════════════════
   const s3f = Math.max(0, frame - S3);
-  const s3Active = frame >= S3;
+  const s3Active = frame >= S3 && frame < TEAM;
   const s3TitleOp = interpolate(s3f, [0, 22], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -521,12 +620,10 @@ export const MyComposition = () => {
     extrapolateRight: "clamp",
     easing: DRIFT,
   });
-  const s3ExitOp = interpolate(s3f, [232, 262], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: EI,
-  });
-  const s3ExitY = interpolate(s3f, [232, 262], [0, -60], {
+  // Exit hand-off → Build Your Team: the title lifts, the side steps part outward
+  // (left & right) and the MIDDLE step ("Build Your Team") rises up + leads into the
+  // next scene, so the team mannequins feel like they grow out of that very step.
+  const s3Exit = interpolate(s3f, [230, 258], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EI,
@@ -539,10 +636,23 @@ export const MyComposition = () => {
   // ══════════════════════════════════════════
   const teamF = Math.max(0, frame - TEAM);
   const teamActive = frame >= TEAM && frame < S4;
-  const teamEyebrowOp = interpolate(teamF, [30, 48], [0, 1], {
+  // "BUILD YOUR TEAM" heading — continues exactly from the risen middle step: it
+  // starts at that step's spot (down + smaller) and rises + grows into the heading,
+  // so the two read as ONE element morphing across the scene cut.
+  const teamHeadOp = interpolate(teamF, [0, 6], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
-    easing: SWIFT,
+    easing: EO,
+  });
+  const teamHeadY = interpolate(teamF, [0, 30], [185, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: DRIFT,
+  });
+  const teamHeadScale = interpolate(teamF, [0, 30], [0.6, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: DRIFT,
   });
   // §3 Case A crossfade with a real beat between the two captions
   const tH1In = fadeScaleIn(teamF, 46, fps, 600);
@@ -611,8 +721,20 @@ export const MyComposition = () => {
   // SCENE 5  (900 – 1109) — Prizes
   // ══════════════════════════════════════════
   const s5f = Math.max(0, frame - S5);
-  const s5Active = frame >= S5;
+  const s5Active = frame >= S5 && frame < S_SPEAKERS;
   const spotOp = interpolate(s5f, [0, 22], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: EO,
+  });
+  // Prizes heading — standard heading motion: fade + rise IN, then fade + rise-AWAY
+  // on exit (matches How-it-works / Speakers / Idea-Bazaar for consistency).
+  const prizeHeadOp = interpolate(s5f, [6, 28, 206, 236], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: EO,
+  });
+  const prizeHeadY = interpolate(s5f, [6, 28, 206, 236], [28, 0, 0, -55], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EO,
@@ -631,10 +753,10 @@ export const MyComposition = () => {
   });
   // Prizes leave one-by-one — sides first, the winner lingers and exits last —
   // overlapping the CTA's entrance so there's no dead gap between scenes.
-  const EXIT_BASE = 162,
-    EXIT_STAGGER = 12; // winner (last) ends at s5f 216 = the S6 boundary
+  const EXIT_BASE = 202,
+    EXIT_STAGGER = 12; // winner (last) ends at s5f 256 = the S_SPEAKERS boundary
   const EXIT_STEP = [0, 2, 1]; // [2nd-left → first, 1st-centre → last, 3rd-right → middle]
-  const plusExitOp = interpolate(s5f, [150, 172], [1, 0], {
+  const plusExitOp = interpolate(s5f, [190, 214], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EI,
@@ -698,17 +820,18 @@ export const MyComposition = () => {
   // ══════════════════════════════════════════
   const s6f = Math.max(0, frame - S6);
   const s6Active = frame >= S6;
-  const s6GlowOp = interpolate(s6f, [0, 20], [0, 1], {
+  // glow blooms immediately so the CTA picks up the instant WIT finishes dissolving
+  const s6GlowOp = interpolate(s6f, [0, 14], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EO,
   });
-  const w1Op = interpolate(s6f, [14, 34], [0, 1], {
+  const w1Op = interpolate(s6f, [8, 28], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: EO,
   });
-  const w1Y = interpolate(s6f, [14, 38], [34, 0], {
+  const w1Y = interpolate(s6f, [8, 32], [34, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: DRIFT,
@@ -753,10 +876,19 @@ export const MyComposition = () => {
     extrapolateRight: "clamp",
     easing: EO,
   });
-  const finalFade = interpolate(s6f, [185, 207], [0, 1], {
+  // headline words snap from a soft blur into crisp focus as they rise (cinematic)
+  const wBlur1 = interpolate(s6f, [8, 30], [12, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const wBlur2 = interpolate(s6f, [26, 48], [12, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const wBlur3 = interpolate(s6f, [38, 60], [12, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  // CTA button — a slow, very gentle "alive" shine that breathes (subtle, not pulsing fast)
+  const ctaHover = 0.3 + Math.sin(s6f * 0.024) * 0.1;
+  // graceful close — the whole frame eases very slightly toward the camera, then a
+  // smooth (ease-in-out) fade to black so the ending settles instead of cutting.
+  const s6Close = interpolate(s6f, [176, 208], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const finalFade = interpolate(s6f, [186, 208], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
-    easing: EI,
+    easing: Easing.inOut(Easing.quad),
   });
   const btnOp = interpolate(s6f, [94, 118], [0, 1], {
     extrapolateLeft: "clamp",
@@ -768,11 +900,68 @@ export const MyComposition = () => {
     extrapolateRight: "clamp",
     easing: EO,
   });
-  const btnPulse = 1 + Math.sin(s6f * 0.03) * 0.018; // slow, smooth breathing
+  const btnPulse = 1 + Math.sin(s6f * 0.018) * 0.01; // very slow, barely-there breathing
   // Wave rings — 3 capsules staggered by 1/3 period, emitting calmly outward.
   const wRing1 = waveForProgress((s6f % WAVE_PERIOD) / WAVE_PERIOD);
   const wRing2 = waveForProgress(((s6f + 50) % WAVE_PERIOD) / WAVE_PERIOD);
   const wRing3 = waveForProgress(((s6f + 100) % WAVE_PERIOD) / WAVE_PERIOD);
+
+  // ══════════════════════════════════════════
+  // SCENE S_SPEAKERS — Speakers & Mentors
+  // ══════════════════════════════════════════
+  const spkF = Math.max(0, frame - S_SPEAKERS);
+  const spkActive = frame >= S_SPEAKERS && frame < S_WIT;
+  // Heading (persists at the top while the carousel cycles below it)
+  const spkHeadOp = interpolate(spkF, [0, 22], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const spkHeadY = interpolate(spkF, [0, 22], [28, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT });
+  // Whole carousel rises + fades into place, then exits the same way
+  const spkEnterOp = interpolate(spkF, [10, 44], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const spkEnterY = interpolate(spkF, [10, 50], [120, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT });
+  const spkExitOp = interpolate(spkF, [298, 328], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EI });
+  const spkExitY = interpolate(spkF, [298, 328], [0, -60], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EI });
+  // Carousel position — held on each speaker, then an eased slide to the next.
+  // pos = 0 (Nitesh) → 1 (Shamik) → 2 (Pratyush). Each slide advances everything
+  // leftward; the back card wraps in from the right (handled in render).
+  const CAROUSEL_EASE = Easing.bezier(0.65, 0, 0.35, 1); // smooth in-out snap
+  const spkSlide1 = interpolate(spkF, [104, 140], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: CAROUSEL_EASE });
+  const spkSlide2 = interpolate(spkF, [200, 236], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: CAROUSEL_EASE });
+  const spkPos = spkSlide1 + spkSlide2;
+
+  // ══════════════════════════════════════════
+  // SCENE S_WIT — Women in Tech
+  // ══════════════════════════════════════════
+  const witF = Math.max(0, frame - S_WIT);
+  const witActive = frame >= S_WIT && frame < S6;
+  // orbital geometry — concentric TRUE circles (no vertical squash) filling the canvas.
+  // Centre sits a touch below mid-frame so the top faces stay clear of the logo.
+  const WIT_CX = 640,
+    WIT_CY = 378;
+  // continuous slow orbit (degrees) — the whole circle drifts as one
+  const witRot = witF * 0.16;
+  // ── Waveform ripple — symmetric expansion. ENTRY: each element grows out from the
+  //    centre (≈0 → rest), staggered inner-first. EXIT: instead of collapsing, it keeps
+  //    expanding outward (rest → ~1.5×) while blurring + fading — "expands and blurs away"
+  //    toward infinity. Same expansion language both ways, opposite direction. ──
+  const witWave = (delay: number, exitDelay: number) => {
+    const eP = interpolate(witF, [delay, delay + 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT });
+    const xP = interpolate(witF, [exitDelay, exitDelay + 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EI });
+    return {
+      eP,
+      xP,
+      appear: eP * (1 - xP),
+      rFactor: (0.1 + 0.9 * eP) * (1 + 0.5 * xP),
+    };
+  };
+  // centre logo / heading / subline — fade in once the ripple has assembled
+  const witLogoOp = interpolate(witF, [30, 52], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const witLogoY = interpolate(witF, [30, 52], [18, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT });
+  const witHeadOp = interpolate(witF, [40, 62], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const witHeadY = interpolate(witF, [40, 62], [16, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT });
+  const witSubOp = interpolate(witF, [52, 72], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  // centre exit — expands & fades away, finishing right at the S6 boundary so the
+  // CTA picks up with no dead gap (smooth, synced hand-off)
+  const witCenterExit = interpolate(witF, [200, 228], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EI });
+  const witCenterExitScale = interpolate(witF, [200, 228], [1, 1.2], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EI });
 
   // ════════════════════════════════════════════════════════════════════════════
   // RENDER
@@ -838,66 +1027,70 @@ export const MyComposition = () => {
             }}
           />
 
-          {/* "Got" — right edge anchored to the button's left */}
+          {/* "Got" — rises up + slides left into place, then anchors to the button's left */}
           <div
             style={{
               position: "absolute",
-              left: `calc(50% + ${boxOffsetX - boxW / 2 - 16}px)`,
+              left: `calc(50% + ${boxOffsetX}px - ${boxW / 2 + 18}px)`,
               top: "50%",
-              transform: `translate(calc(-100% - ${sideShift}px), calc(-50% + ${gotY}px))`,
-              opacity: gotOp * sideFade,
+              transform: `translate(calc(-100% - ${sideShift}px + ${enterGot.x}px), calc(-50% + ${enterGot.y}px))`,
+              opacity: enterGot.op * sideFade,
               whiteSpace: "nowrap",
             }}
           >
             <span
               style={{
-                fontFamily: T.head,
-                fontSize: 76,
-                fontWeight: 700,
+                fontFamily: T.display,
+                fontSize: 92,
+                fontWeight: 400,
                 color: "#FFFFFF",
-                letterSpacing: "-1px",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
               }}
             >
               Got
             </span>
           </div>
 
-          {/* "an idea?" — left edge anchored to the button's right */}
+          {/* "an idea?" — rises up + slides left into place, then anchors to button's right */}
           <div
             style={{
               position: "absolute",
-              left: `calc(50% + ${boxOffsetX + boxW / 2 + 16}px)`,
+              left: `calc(50% + ${boxOffsetX}px + ${boxW / 2 + 18}px)`,
               top: "50%",
-              transform: `translate(${sideShift}px, calc(-50% + ${gotY}px))`,
-              opacity: gotOp * sideFade,
+              transform: `translate(${sideShift + enterIdea.x}px, calc(-50% + ${enterIdea.y}px))`,
+              opacity: enterIdea.op * sideFade,
               whiteSpace: "nowrap",
             }}
           >
             <span
               style={{
-                fontFamily: T.head,
-                fontSize: 76,
-                fontWeight: 700,
+                fontFamily: T.display,
+                fontSize: 92,
+                fontWeight: 400,
                 background: T.grad,
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
-                letterSpacing: "-1px",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
               }}
             >
               an idea?
             </span>
           </div>
 
-          {/* Morphing button — slides from group-centre to true screen centre */}
+          {/* Morphing button — bulb SQUARE widens into the "Create a squad" rectangle,
+              the emoji swaps up for the label inside the (overflow-clipped) frame */}
           <div
             style={{
               position: "absolute",
               left: `calc(50% + ${boxOffsetX}px)`,
               top: "50%",
-              transform: `translate(-50%,-50%) scale(${clickDip})`,
+              transform: `translate(calc(-50% + ${enterBulb.x}px), calc(-50% + ${enterBulb.y}px)) scale(${(0.82 + 0.18 * enterBulb.op) * clickDip})`,
+              opacity: enterBulb.op,
             }}
           >
-            {/* click ripple */}
+            {/* click ripple — purple, matches the shiny theme */}
             {ripple > 0 && ripple < 1 && (
               <div
                 style={{
@@ -905,7 +1098,7 @@ export const MyComposition = () => {
                   left: "50%",
                   top: "50%",
                   width: boxW,
-                  height: boxH,
+                  height: 96,
                   borderRadius: 20,
                   transform: `translate(-50%,-50%) scale(${1 + ripple * 0.7})`,
                   border: `2px solid ${T.purple}`,
@@ -914,57 +1107,50 @@ export const MyComposition = () => {
                 }}
               />
             )}
-            {/* button clip — emoji and label swap vertically WITHIN this box */}
-            <div
-              style={{
-                position: "relative",
-                width: boxW,
-                height: boxH,
-                borderRadius: 20,
-                background: "#FFFFFF",
-                overflow: "hidden",
-                boxShadow: `0 12px 32px -6px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 48px ${T.purple}40`,
-                opacity: boxOp,
-              }}
-            >
-              {/* emoji — rolls up and out the top */}
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: "50%",
-                  transform: `translate(-50%,-50%) translateY(${emojiY}px)`,
-                  opacity: bulbOp,
-                }}
-              >
-                <Img
-                  src={staticFile("icons/idea-bulb.webp")}
-                  style={{ width: 58, height: 58, display: "block", objectFit: "contain" }}
-                />
-              </div>
-              {/* label — rolls up from the bottom into place */}
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: "50%",
-                  transform: `translate(-50%,-50%) translateY(${textY}px)`,
-                  opacity: ctaTxtOp,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <span
+            {/* Premium white shiny button — rotating conic shine + dots + shimmer + bloom */}
+            <div style={{ width: boxW, height: 96 }}>
+              <ShinyButton frame={frame} hover={btnHover} press={curClick} radius={20}>
+                {/* emoji — rolls up and out the top */}
+                <div
                   style={{
-                    fontFamily: T.head,
-                    fontSize: 30,
-                    fontWeight: 700,
-                    color: T.paper,
-                    letterSpacing: "-0.4px",
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translate(-50%,-50%) translateY(${emojiY}px)`,
+                    opacity: bulbOp,
+                    zIndex: 2,
                   }}
                 >
-                  Create a squad
-                </span>
-              </div>
+                  <Img
+                    src={staticFile("icons/idea-bulb.webp")}
+                    style={{ width: 54, height: 54, display: "block", objectFit: "contain" }}
+                  />
+                </div>
+                {/* label — rolls up from the bottom into place */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translate(-50%,-50%) translateY(${textY}px)`,
+                    opacity: ctaTxtOp,
+                    whiteSpace: "nowrap",
+                    zIndex: 2,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: T.head,
+                      fontSize: 30,
+                      fontWeight: 700,
+                      color: T.paper,
+                      letterSpacing: "-0.4px",
+                    }}
+                  >
+                    Create a squad
+                  </span>
+                </div>
+              </ShinyButton>
             </div>
           </div>
 
@@ -1005,7 +1191,7 @@ export const MyComposition = () => {
           </div>
         </div>
       )}
-      {/* ── Logo — persists across all scenes ── */}
+      {/* ── Logo — persists across all scenes; sits on TOP of everything (zIndex) ── */}
       <div
         style={{
           position: "absolute",
@@ -1013,17 +1199,49 @@ export const MyComposition = () => {
           top: `${logoTopPercent}%`,
           transform: `translate(-50%,-50%) scale(${logoScale})`,
           opacity: logoOpacity,
-          zIndex: 10,
+          zIndex: 3000,
         }}
       >
+        {/* dark backdrop so any scene content passes cleanly BEHIND the logo */}
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            width: LOGO_W + 60,
+            height: LOGO_H + 26,
+            transform: "translate(-50%,-50%)",
+            borderRadius: "50%",
+            background:
+              "radial-gradient(ellipse, rgba(8,6,18,0.92) 0%, rgba(8,6,18,0.7) 48%, transparent 74%)",
+            filter: "blur(14px)",
+            pointerEvents: "none",
+          }}
+        />
         <Img
           src={LOGO_URL}
           width={LOGO_W}
           height={LOGO_H}
           style={{
             display: "block",
+            position: "relative",
             filter: `drop-shadow(0 0 ${16 * logoPulse}px rgba(255,63,108,0.6)) drop-shadow(0 0 ${28 * logoPulse}px rgba(174,51,255,0.35))`,
           }}
+        />
+      </div>
+      {/* ── Hackerramp logo — small, top-right corner; also on TOP of everything ── */}
+      <div
+        style={{
+          position: "absolute",
+          right: 28,
+          top: 20,
+          opacity: logoOpacity * 0.9,
+          zIndex: 3000,
+        }}
+      >
+        <Img
+          src={staticFile("hackerramp-logo.png")}
+          style={{ display: "block", height: 22, width: "auto" }}
         />
       </div>
       {/* ══════════ SCENE 3 — How it works (3-step stepper, dark glass) ══════════ */}
@@ -1036,24 +1254,33 @@ export const MyComposition = () => {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            opacity: s3ExitOp,
-            transform: `translateY(${s3ExitY}px)`,
           }}
         >
-          {/* Title */}
+          {/* Title — lifts away first on exit */}
           <h2
             style={{
-              fontFamily: T.head,
-              fontSize: 66,
-              fontWeight: 700,
+              fontFamily: T.display,
+              fontSize: 86,
+              fontWeight: 400,
               color: "#FFFFFF",
               margin: "0 0 84px",
-              letterSpacing: "-0.5px",
-              opacity: s3TitleOp,
-              transform: `translateY(${s3TitleY}px)`,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              lineHeight: 1,
+              opacity: s3TitleOp * (1 - s3Exit),
+              transform: `translateY(${s3TitleY - 70 * s3Exit}px)`,
             }}
           >
-            How it works?
+            How It{" "}
+            <span
+              style={{
+                background: T.grad,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Works
+            </span>
           </h2>
 
           {/* Steps + connectors */}
@@ -1083,6 +1310,15 @@ export const MyComposition = () => {
                 extrapolateRight: "clamp",
                 easing: DRIFT,
               });
+              // exit hand-off → Build Your Team. Sides (0,2) part outward + fade. The
+              // middle ("Build Your Team") stays full-opacity, drops its icon, and
+              // rises + grows so it hands SEAMLESSLY to the next scene's heading.
+              const isMid = i === 1;
+              const partX = (i === 0 ? -320 : i === 2 ? 320 : 0) * s3Exit;
+              const riseY = (isMid ? -132 : 40) * s3Exit;
+              const colOp = isMid ? 1 : 1 - s3Exit;
+              const iconFade = isMid ? Math.max(0, 1 - s3Exit * 1.7) : 1;
+              const titleGrow = isMid ? 1 + 0.12 * s3Exit : 1;
               return (
                 <React.Fragment key={i}>
                   {/* Step column */}
@@ -1093,6 +1329,8 @@ export const MyComposition = () => {
                       flexDirection: "column",
                       alignItems: "center",
                       textAlign: "center",
+                      opacity: colOp,
+                      transform: `translate(${partX}px, ${riseY}px)`,
                     }}
                   >
                     {/* dark glass tile — subtle accent glow, white icon */}
@@ -1107,7 +1345,7 @@ export const MyComposition = () => {
                         alignItems: "center",
                         justifyContent: "center",
                         boxShadow: `0 0 34px rgba(${s.glow},0.3), 0 18px 44px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08)`,
-                        opacity: tile.opacity,
+                        opacity: tile.opacity * iconFade,
                         transform: `scale(${tile.scale})`,
                       }}
                     >
@@ -1115,21 +1353,23 @@ export const MyComposition = () => {
                     </div>
                     <h3
                       style={{
-                        fontFamily: T.head,
-                        fontSize: 34,
-                        fontWeight: 600,
+                        fontFamily: T.display,
+                        fontSize: 40,
+                        fontWeight: 400,
                         color: "#FFFFFF",
-                        margin: "30px 0 0",
-                        letterSpacing: "-0.4px",
+                        margin: "26px 0 0",
+                        letterSpacing: "0.8px",
+                        textTransform: "uppercase",
+                        lineHeight: 1,
                         opacity: titleOp,
-                        transform: `translateY(${titleY}px)`,
+                        transform: `translateY(${titleY}px) scale(${titleGrow})`,
                       }}
                     >
                       {s.title}
                     </h3>
                   </div>
 
-                  {/* Dashed connector (between tiles only), aligned to tile centre */}
+                  {/* Dashed connector (between tiles only) — draws in, simply fades on exit */}
                   {i < STEPS.length - 1 && (
                     <div
                       style={{
@@ -1138,7 +1378,7 @@ export const MyComposition = () => {
                         display: "flex",
                         alignItems: "center",
                         gap: 7,
-                        opacity: connDraw,
+                        opacity: connDraw * (1 - s3Exit),
                         transform: `scaleX(${connDraw})`,
                         transformOrigin: "left center",
                       }}
@@ -1209,32 +1449,46 @@ export const MyComposition = () => {
             <TeamPerson key={p.id} p={p} tf={teamF} fps={fps} />
           ))}
 
-          {/* caption (top, clear of the heads) — brand heading treatment */}
+          {/* caption — "BUILD YOUR TEAM" continues from the rising middle step above,
+              with a clear member-count line that grows 2 → 5 as the squad fills in */}
           <div
             style={{
               position: "absolute",
-              top: 132,
+              top: 142,
               left: 0,
               right: 0,
               textAlign: "center",
               zIndex: 20,
             }}
           >
-            <p
+            <h2
               style={{
                 margin: 0,
-                fontSize: 13,
-                fontWeight: 600,
-                letterSpacing: "4px",
-                color: T.mute3,
+                fontFamily: T.display,
+                fontSize: 74,
+                fontWeight: 400,
+                color: "#FFFFFF",
+                letterSpacing: "1.6px",
                 textTransform: "uppercase",
-                opacity: teamEyebrowOp,
+                lineHeight: 1,
+                opacity: teamHeadOp,
+                transform: `translateY(${teamHeadY}px) scale(${teamHeadScale})`,
               }}
             >
-              Assemble Your Squad
-            </p>
-            <div style={{ position: "relative", height: 80, marginTop: 18 }}>
-              <h2
+              Build Your{" "}
+              <span
+                style={{
+                  background: T.grad,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Team
+              </span>
+            </h2>
+            {/* member-count instruction — crossfades 2 → 5 as members join */}
+            <div style={{ position: "relative", height: 42, marginTop: 16 }}>
+              <p
                 style={{
                   position: "absolute",
                   inset: 0,
@@ -1243,28 +1497,19 @@ export const MyComposition = () => {
                   justifyContent: "center",
                   margin: 0,
                   fontFamily: T.head,
-                  fontSize: 58,
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  letterSpacing: "-0.5px",
-                  lineHeight: 1,
+                  fontSize: 28,
+                  fontWeight: 500,
+                  color: T.mute1,
+                  letterSpacing: "0.1px",
                   opacity: tH1Op,
                   transform: `scale(${tH1Sc})`,
                 }}
               >
-                At least&nbsp;
-                <span
-                  style={{
-                    background: T.grad,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  2
-                </span>
+                Start with at least&nbsp;
+                <b style={{ color: "#FFFFFF", fontWeight: 800 }}>2</b>
                 &nbsp;members
-              </h2>
-              <h2
+              </p>
+              <p
                 style={{
                   position: "absolute",
                   inset: 0,
@@ -1273,27 +1518,27 @@ export const MyComposition = () => {
                   justifyContent: "center",
                   margin: 0,
                   fontFamily: T.head,
-                  fontSize: 58,
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  letterSpacing: "-0.5px",
-                  lineHeight: 1,
+                  fontSize: 28,
+                  fontWeight: 500,
+                  color: T.mute1,
+                  letterSpacing: "0.1px",
                   opacity: tH2.opacity,
                   transform: `scale(${tH2.scale})`,
                 }}
               >
-                Up to&nbsp;
-                <span
+                Grow your squad up to&nbsp;
+                <b
                   style={{
                     background: T.grad,
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
+                    fontWeight: 800,
                   }}
                 >
                   5
-                </span>
+                </b>
                 &nbsp;members
-              </h2>
+              </p>
             </div>
           </div>
 
@@ -1353,17 +1598,28 @@ export const MyComposition = () => {
           <div style={{ textAlign: "center", paddingTop: 132, flexShrink: 0 }}>
             <h2
               style={{
-                fontFamily: T.head,
-                fontSize: 54,
-                fontWeight: 700,
+                fontFamily: T.display,
+                fontSize: 68,
+                fontWeight: 400,
                 color: "#FFFFFF",
                 margin: "0 0 12px",
-                letterSpacing: "-0.5px",
+                letterSpacing: "1.2px",
+                textTransform: "uppercase",
+                lineHeight: 1,
                 opacity: s4Head[0].op,
                 transform: `translateY(${s4Head[0].y}px)`,
               }}
             >
-              Ideas worth building
+              Ideas Worth{" "}
+              <span
+                style={{
+                  background: T.grad,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Building
+              </span>
             </h2>
             <p
               style={{
@@ -1428,11 +1684,11 @@ export const MyComposition = () => {
                         <div
                           key={i}
                           style={{
-                            background: "rgba(255,255,255,0.02)",
-                            border: "1px solid rgba(255,255,255,0.05)",
+                            background: "rgba(20,18,36,0.72)",
+                            border: "1px solid rgba(255,255,255,0.10)",
                             borderRadius: 20,
-                            padding: "26px 26px 24px",
-                            boxShadow: "0 6px 18px rgba(0,0,0,0.18)",
+                            padding: "24px 24px 20px",
+                            boxShadow: "0 10px 26px rgba(0,0,0,0.38)",
                           }}
                         >
                           <p
@@ -1440,54 +1696,65 @@ export const MyComposition = () => {
                               margin: 0,
                               fontSize: 15,
                               lineHeight: 1.58,
-                              color: T.mute2,
+                              color: T.mute1,
                               fontWeight: 400,
                             }}
                           >
                             {idea.text}
                           </p>
+                          {/* upvote row — vote count + Upvote button (replaces profile) */}
                           <div
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 11,
-                              marginTop: 18,
+                              justifyContent: "space-between",
+                              marginTop: 20,
                             }}
                           >
-                            <Img
-                              src={idea.img}
-                              style={{
-                                width: 38,
-                                height: 38,
-                                borderRadius: "50%",
-                                objectFit: "cover",
-                              }}
-                            />
                             <div
                               style={{
                                 display: "flex",
-                                flexDirection: "column",
+                                alignItems: "center",
+                                gap: 7,
                               }}
                             >
                               <span
                                 style={{
-                                  fontSize: 15,
-                                  fontWeight: 600,
-                                  color: "#FFFFFF",
-                                  letterSpacing: "-0.2px",
-                                  lineHeight: 1.35,
+                                  color: "#3FD98A",
+                                  fontSize: 12,
+                                  lineHeight: 1,
                                 }}
                               >
-                                {idea.name}
+                                ▲
                               </span>
                               <span
                                 style={{
-                                  fontSize: 14,
-                                  color: T.mute3,
-                                  lineHeight: 1.35,
+                                  fontSize: 16,
+                                  fontWeight: 700,
+                                  color: "#FFFFFF",
+                                  letterSpacing: "-0.2px",
                                 }}
                               >
-                                {idea.role}
+                                {idea.votes}
+                              </span>
+                            </div>
+                            <div
+                              style={{
+                                background: "#FFFFFF",
+                                borderRadius: 999,
+                                padding: "8px 22px",
+                                boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: 14,
+                                  fontWeight: 700,
+                                  color: T.paper,
+                                  letterSpacing: "0.1px",
+                                }}
+                              >
+                                Upvote
                               </span>
                             </div>
                           </div>
@@ -1522,16 +1789,54 @@ export const MyComposition = () => {
             }}
           />
 
+          {/* Heading — sits clear of the logo */}
           <div
             style={{
               position: "absolute",
-              top: 120,
+              top: 142,
+              left: 0,
+              right: 0,
+              textAlign: "center",
+              opacity: prizeHeadOp,
+              transform: `translateY(${prizeHeadY}px)`,
+            }}
+          >
+            <h2
+              style={{
+                margin: 0,
+                fontFamily: T.display,
+                fontSize: 58,
+                fontWeight: 400,
+                color: "#FFFFFF",
+                letterSpacing: "1.4px",
+                textTransform: "uppercase",
+                lineHeight: 1,
+              }}
+            >
+              Prizes &amp;{" "}
+              <span
+                style={{
+                  background: T.gradLong,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Rewards
+              </span>
+            </h2>
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              top: 214,
               left: 40,
               right: 40,
-              bottom: 22,
+              bottom: 24,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <div
@@ -1540,7 +1845,6 @@ export const MyComposition = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 22,
-                flex: 1,
                 width: "100%",
               }}
             >
@@ -1730,6 +2034,446 @@ export const MyComposition = () => {
           </div>
         </>
       )}
+      {/* ══════════ SCENE S_SPEAKERS — Speakers & Mentors (coverflow) ══════════ */}
+      {spkActive && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: spkExitOp,
+            transform: `translateY(${spkExitY}px)`,
+          }}
+        >
+          {/* Ambient glow behind the carousel */}
+          <div
+            style={{
+              position: "absolute",
+              top: "56%",
+              left: "50%",
+              width: 900,
+              height: 540,
+              borderRadius: "50%",
+              background: `radial-gradient(ellipse, ${T.purple}22 0%, ${T.accent}12 45%, transparent 70%)`,
+              transform: "translate(-50%,-50%)",
+              filter: "blur(60px)",
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* Heading — anchored below the logo so it never collides with it */}
+          <div
+            style={{
+              position: "absolute",
+              top: 116,
+              left: 0,
+              right: 0,
+              textAlign: "center",
+            }}
+          >
+            <p
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: T.mute4,
+                letterSpacing: "3px",
+                textTransform: "uppercase",
+                margin: "0 0 10px",
+                opacity: spkHeadOp,
+                transform: `translateY(${spkHeadY}px)`,
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              Learn from the best
+            </p>
+            <h2
+              style={{
+                fontFamily: T.display,
+                fontSize: 60,
+                fontWeight: 400,
+                color: "#FFFFFF",
+                margin: 0,
+                letterSpacing: "1.4px",
+                textTransform: "uppercase",
+                lineHeight: 1,
+                opacity: spkHeadOp,
+                transform: `translateY(${spkHeadY}px)`,
+              }}
+            >
+              Speakers &amp;{" "}
+              <span
+                style={{
+                  background: T.grad,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Mentors.
+              </span>
+            </h2>
+          </div>
+
+          {/* Coverflow stage — centre card sharp, side cards blurred & pushed back */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: spkEnterOp,
+              perspective: 1400,
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: 432,
+                transform: `translate(-50%,-50%) translateY(${spkEnterY}px)`,
+                transformStyle: "preserve-3d",
+              }}
+            >
+              {SPEAKERS.map((s, i) => {
+                const N = SPEAKERS.length;
+                // wrap relative position into [-N/2, N/2] so the carousel loops
+                let rel = i - spkPos;
+                rel = rel - N * Math.round(rel / N);
+                const absRel = Math.abs(rel);
+                const center = Math.max(0, 1 - absRel); // 1 at centre, 0 at sides
+                const scale = interpolate(absRel, [0, 1], [1, 0.82], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                });
+                const tx = rel * 286;
+                const rotY = interpolate(rel, [-1, 0, 1], [30, 0, -30], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                });
+                const blur = interpolate(absRel, [0, 0.45, 1], [0, 0.6, 6.5], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                });
+                const op = interpolate(absRel, [0, 1, 1.5], [1, 0.62, 0], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                });
+                // gentle idle life — a slow vertical float + yaw sway, strongest on the
+                // focused (centre) card so it doesn't read as a flat static row
+                const idleY = Math.sin(spkF * 0.045 + i * 1.7) * 9 * (0.35 + 0.65 * center);
+                const idleRot = Math.sin(spkF * 0.032 + i * 1.1) * 2.4 * center;
+                const CARD_W = 300,
+                  CARD_H = 434;
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      position: "absolute",
+                      left: "50%",
+                      top: "50%",
+                      width: CARD_W,
+                      height: CARD_H,
+                      marginLeft: -CARD_W / 2,
+                      marginTop: -CARD_H / 2,
+                      borderRadius: 22,
+                      overflow: "hidden",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      transform: `translateX(${tx}px) translateY(${idleY}px) scale(${scale}) rotateY(${rotY + idleRot}deg)`,
+                      opacity: op,
+                      zIndex: Math.round(100 - absRel * 20),
+                      filter: `blur(${blur}px)`,
+                      boxShadow: `0 34px 70px -22px rgba(0,0,0,0.78), 0 0 ${46 * center}px rgba(174,51,255,${0.4 * center})`,
+                    }}
+                  >
+                    {/* full-bleed headshot (studio lighting baked in) */}
+                    <Img
+                      src={s.img}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        objectPosition: "center top",
+                      }}
+                    />
+                    {/* bottom gradient scrim for text legibility */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(to top, rgba(8,6,18,0.96) 0%, rgba(8,6,18,0.78) 20%, rgba(8,6,18,0.18) 44%, transparent 62%)",
+                      }}
+                    />
+                    {/* text block */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: 22,
+                        right: 22,
+                        bottom: 20,
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          color: "rgba(255,255,255,0.55)",
+                          letterSpacing: "2.5px",
+                          textTransform: "uppercase",
+                          margin: "0 0 6px",
+                          fontFamily: "'JetBrains Mono', monospace",
+                        }}
+                      >
+                        Speaker
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: T.head,
+                          fontSize: 26,
+                          fontWeight: 700,
+                          color: "#FFFFFF",
+                          margin: "0 0 12px",
+                          letterSpacing: "-0.4px",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {s.name}
+                      </p>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 9,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: 8,
+                            background: "#FFFFFF",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                          }}
+                        >
+                          <Img
+                            src={s.logo}
+                            style={{
+                              width: 20,
+                              height: 20,
+                              objectFit: "contain",
+                            }}
+                          />
+                        </div>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: T.mute1,
+                            fontWeight: 500,
+                            lineHeight: 1.25,
+                          }}
+                        >
+                          {s.role} · {s.company}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════ SCENE S_WIT — Women in Tech (orbital Leadership Circle) ══════════ */}
+      {witActive && (
+        <div style={{ position: "absolute", inset: 0 }}>
+          {/* rose + violet ambient glow pooled behind the rings */}
+          <div
+            style={{
+              position: "absolute",
+              left: WIT_CX,
+              top: WIT_CY,
+              width: 880,
+              height: 660,
+              borderRadius: "50%",
+              background:
+                "radial-gradient(ellipse, rgba(255,45,120,0.16) 0%, rgba(176,50,255,0.10) 44%, transparent 72%)",
+              transform: "translate(-50%,-50%)",
+              filter: "blur(58px)",
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* concentric TRUE-circle rings — fade outward, ripple in / collapse out */}
+          <svg
+            width={1280}
+            height={720}
+            style={{ position: "absolute", inset: 0 }}
+          >
+            <defs>
+              <linearGradient id="witRing" x1="0" y1="0" x2="1" y2="0.3">
+                <stop offset="0%" stopColor="#FF2D78" />
+                <stop offset="50%" stopColor="#B032FF" />
+                <stop offset="100%" stopColor="#36C5FF" />
+              </linearGradient>
+            </defs>
+            {WIT_SHELLS.map((s, si) => {
+              const w = witWave(si * 7, 200 + (WIT_SHELLS.length - 1 - si) * 3);
+              return (
+                <circle
+                  key={si}
+                  cx={WIT_CX}
+                  cy={WIT_CY}
+                  r={s.r * w.rFactor}
+                  fill="none"
+                  stroke="url(#witRing)"
+                  strokeWidth={1.4}
+                  opacity={w.appear * s.fade * 0.6}
+                />
+              );
+            })}
+          </svg>
+
+          {/* the Leadership Circle — faces fan outward, sharp at centre → blurred far out.
+              On exit they keep expanding outward + blur up + fade (no collapse). */}
+          {WIT_DOTS.map((d, i) => {
+            const norm = (d.r - WIT_SHELLS[0].r) / (WIT_SHELLS[WIT_SHELLS.length - 1].r - WIT_SHELLS[0].r);
+            const w = witWave(norm * 32, 198 + norm * 6);
+            const ang = ((d.angle + witRot) * Math.PI) / 180;
+            const r = d.r * w.rFactor;
+            const x = WIT_CX + r * Math.cos(ang);
+            const y = WIT_CY + r * Math.sin(ang);
+            // grows in on entry, then a touch larger on exit (never shrinks)
+            const scale = (0.32 + 0.68 * w.eP) * (1 + 0.14 * w.xP);
+            const blur = d.blur + w.xP * 16; // dissolve into blur as it expands away
+            const tba = !d.role; // "To be decided" placeholders
+            return (
+              <div
+                key={`av-${i}`}
+                style={{
+                  position: "absolute",
+                  left: x,
+                  top: y,
+                  transform: `translate(-50%,-50%) scale(${scale})`,
+                  opacity: d.fade * w.appear,
+                  filter: blur ? `blur(${blur}px)` : undefined,
+                  zIndex: Math.round(1000 - d.r),
+                }}
+              >
+                <MockAvatar size={WIT_AVATAR_SIZE} img={d.img} tint={d.tint} />
+                {/* name label — confirmed leaders in white, placeholders muted italic */}
+                {d.name && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: "50%",
+                      transform: "translate(-50%, 6px)",
+                      whiteSpace: "nowrap",
+                      textAlign: "center",
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: tba ? 11 : 12,
+                        fontWeight: tba ? 600 : 700,
+                        fontStyle: tba ? "italic" : "normal",
+                        color: tba ? T.mute3 : "#FFFFFF",
+                        letterSpacing: "0.1px",
+                        textShadow: "0 2px 8px rgba(0,0,0,0.85)",
+                      }}
+                    >
+                      {d.name}
+                    </p>
+                    {d.role && (
+                      <p
+                        style={{
+                          margin: "2px 0 0",
+                          fontSize: 9.5,
+                          fontWeight: 500,
+                          color: T.mute3,
+                          textShadow: "0 2px 8px rgba(0,0,0,0.85)",
+                        }}
+                      >
+                        {d.role}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* centre — WIT logo + internal "Leadership Circle" framing + event detail */}
+          <div
+            style={{
+              position: "absolute",
+              left: WIT_CX,
+              top: WIT_CY,
+              width: 270,
+              transform: `translate(-50%,-50%) scale(${witCenterExitScale})`,
+              textAlign: "center",
+              opacity: witCenterExit,
+              zIndex: 2000,
+            }}
+          >
+            <Img
+              src={staticFile("women-in-tech-logo.png")}
+              style={{
+                display: "block",
+                width: 220,
+                height: "auto",
+                margin: "0 auto 16px",
+                opacity: witLogoOp,
+                transform: `translateY(${witLogoY}px)`,
+                filter: "drop-shadow(0 0 22px rgba(255,45,120,0.45))",
+              }}
+            />
+            <h2
+              style={{
+                fontFamily: T.display,
+                fontSize: 34,
+                fontWeight: 400,
+                color: "#FFFFFF",
+                margin: "0 0 8px",
+                letterSpacing: "0.8px",
+                textTransform: "uppercase",
+                lineHeight: 1.04,
+                opacity: witHeadOp,
+                transform: `translateY(${witHeadY}px)`,
+              }}
+            >
+              Meet the{" "}
+              <span
+                style={{
+                  background: "linear-gradient(135deg, #FF2D78, #B032FF)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Leadership Circle.
+              </span>
+            </h2>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 12.5,
+                fontWeight: 600,
+                color: T.mute2,
+                letterSpacing: "0.3px",
+                opacity: witSubOp,
+              }}
+            >
+              Fri, July 17 &nbsp;·&nbsp; Myntra Campus
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ══════════ SCENE 6 — CTA ══════════ */}
       {s6Active && (
         <>
@@ -1759,6 +2503,7 @@ export const MyComposition = () => {
               justifyContent: "center",
               paddingTop: 110,
               gap: 0,
+              transform: `scale(${1 + 0.05 * s6Close})`,
             }}
           >
             {/* Register. Ideate. Win. */}
@@ -1772,22 +2517,31 @@ export const MyComposition = () => {
               }}
             >
               {[
-                { word: "Register.", op: w1Op, y: w1Y },
-                { word: "Ideate.", op: w2Op, y: w2Y },
-                { word: "Win.", op: w3Op, y: w3Y },
+                { word: "Register.", op: w1Op, y: w1Y, b: wBlur1, grad: false },
+                { word: "Ideate.", op: w2Op, y: w2Y, b: wBlur2, grad: false },
+                { word: "Win.", op: w3Op, y: w3Y, b: wBlur3, grad: true },
               ].map((w, i) => (
                 <span
                   key={i}
                   style={{
                     display: "inline-block",
-                    fontFamily: T.head,
-                    fontSize: 88,
-                    fontWeight: 800,
+                    fontFamily: T.display,
+                    fontSize: 110,
+                    fontWeight: 400,
                     color: "#FFFFFF",
-                    letterSpacing: "-1px",
+                    letterSpacing: "1px",
+                    textTransform: "uppercase",
                     lineHeight: 1,
                     opacity: w.op,
                     transform: `translateY(${w.y}px)`,
+                    filter: w.b > 0.05 ? `blur(${w.b}px)` : undefined,
+                    ...(w.grad
+                      ? {
+                          background: T.grad,
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                        }
+                      : {}),
                   }}
                 >
                   {w.word}
@@ -1842,7 +2596,8 @@ export const MyComposition = () => {
               </p>
             </div>
 
-            {/* Register Your Team button + waveFromSource rings */}
+            {/* Register Your Team — premium shiny pill (bookends the intro button) + soft
+                wave rings that pulse calmly outward, inviting the click */}
             <div
               style={{
                 opacity: btnOp,
@@ -1851,77 +2606,65 @@ export const MyComposition = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 position: "relative",
-                height: 90,
+                height: 96,
               }}
             >
-              {/* Wave — soft light-purple fills only (no outline), kept subtle (−30% opacity) */}
-              <div
-                style={{
-                  position: "absolute",
-                  width: 268,
-                  height: 62,
-                  borderRadius: 999,
-                  background: "rgba(190,130,255,0.13)",
-                  transform: `scale(${wRing1.scale})`,
-                  opacity: wRing1.opacity * btnOp * 0.7,
-                  filter: `blur(${wRing1.blur}px)`,
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  width: 268,
-                  height: 62,
-                  borderRadius: 999,
-                  background: "rgba(190,130,255,0.13)",
-                  transform: `scale(${wRing2.scale})`,
-                  opacity: wRing2.opacity * btnOp * 0.7,
-                  filter: `blur(${wRing2.blur}px)`,
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  width: 268,
-                  height: 62,
-                  borderRadius: 999,
-                  background: "rgba(190,130,255,0.13)",
-                  transform: `scale(${wRing3.scale})`,
-                  opacity: wRing3.opacity * btnOp * 0.7,
-                  filter: `blur(${wRing3.blur}px)`,
-                  pointerEvents: "none",
-                }}
-              />
-              {/* Button */}
+              {[wRing1, wRing2, wRing3].map((r, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    width: 300,
+                    height: 64,
+                    borderRadius: 18,
+                    background: "rgba(190,130,255,0.11)",
+                    transform: `scale(${r.scale})`,
+                    opacity: r.opacity * btnOp * 0.6,
+                    filter: `blur(${r.blur + 9}px)`,
+                    pointerEvents: "none",
+                  }}
+                />
+              ))}
+              {/* shiny rounded-rectangle button (matches "Create a squad") */}
               <div
                 style={{
                   position: "relative",
                   zIndex: 2,
+                  width: 300,
+                  height: 64,
                   transform: `scale(${btnPulse})`,
-                  background: "#FFFFFF",
-                  borderRadius: 999,
-                  padding: "17px 56px",
-                  boxShadow: `0 4px 18px -4px rgba(255,255,255,0.3), 0 0 40px rgba(174,51,255,0.18)`,
                 }}
               >
-                <span
-                  style={{
-                    fontSize: 19,
-                    fontWeight: 700,
-                    color: T.paper,
-                    letterSpacing: "0.2px",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Register Your Team
-                </span>
+                <ShinyButton frame={frame} hover={ctaHover} radius={18}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      zIndex: 2,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 19,
+                        fontWeight: 700,
+                        color: T.paper,
+                        letterSpacing: "0.2px",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Register Your Team
+                    </span>
+                  </div>
+                </ShinyButton>
               </div>
             </div>
           </div>
 
-          {/* Final fade to black */}
+          {/* Final fade to black — sits ABOVE everything (incl. the logo) for a clean,
+              unified fade-out so nothing pops while the frame settles to black */}
           {finalFade > 0 && (
             <div
               style={{
@@ -1929,7 +2672,7 @@ export const MyComposition = () => {
                 inset: 0,
                 background: "#000000",
                 opacity: finalFade,
-                zIndex: 50,
+                zIndex: 5000,
               }}
             />
           )}
