@@ -107,21 +107,23 @@ export const MyCompositionVertical: React.FC = () => {
   const introExitY = interpolate(frame, [280, 322], [0, -70], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EI });
   const introGlowOp = interpolate(frame, [4, 40], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
 
+  // big VERTICAL stack: GOT (top) · bulb square (middle) · AN IDEA? (bottom). Each
+  // rises in one by one; the middle square then widens into the "Create a squad"
+  // button while GOT slides up and AN IDEA? slides down out of the way.
   const introEnter = (delay: number) => ({
     op: interpolate(frame, [delay, delay + 22], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO }),
-    y: interpolate(frame, [delay, delay + 32], [46, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT }),
-    x: interpolate(frame, [delay, delay + 32], [30, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT }),
+    y: interpolate(frame, [delay, delay + 32], [54, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT }),
   });
   const enterGot = introEnter(8);
   const enterBulb = introEnter(24);
   const enterIdea = introEnter(40);
   const bulbOp = enterBulb.op;
-  const boxOffsetX = interpolate(frame, [98, 152], [-92, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
-  const boxW = interpolate(frame, [98, 152], [96, 392], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const boxW = interpolate(frame, [98, 152], [190, 540], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const boxH = interpolate(frame, [98, 152], [190, 140], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
   const sideFade = interpolate(frame, [96, 132], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EI });
-  const sideShift = interpolate(frame, [96, 140], [0, 60], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EI });
-  const emojiY = interpolate(frame, [104, 148], [0, -88], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
-  const textY = interpolate(frame, [104, 148], [88, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const sideShift = interpolate(frame, [96, 140], [0, 150], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EI });
+  const emojiY = interpolate(frame, [104, 148], [0, -100], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
+  const textY = interpolate(frame, [104, 148], [100, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
   const ctaTxtOp = interpolate(frame, [110, 146], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
   const curOp = interpolate(frame, [205, 244], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
   const curX = interpolate(frame, [205, 258], [-150, -30], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
@@ -293,28 +295,28 @@ export const MyCompositionVertical: React.FC = () => {
               pointerEvents: "none",
             }}
           />
-          {/* "Got" */}
+          {/* "GOT" — above the square; slides up on morph */}
           <div
             style={{
               position: "absolute",
-              left: `calc(50% + ${boxOffsetX}px - ${boxW / 2 + 16}px)`,
-              top: "50%",
-              transform: `translate(calc(-100% - ${sideShift}px + ${enterGot.x}px), calc(-50% + ${enterGot.y}px))`,
+              left: "50%",
+              top: `calc(50% - ${boxH / 2 + 40}px)`,
+              transform: `translate(-50%, calc(-100% - ${sideShift}px + ${enterGot.y}px))`,
               opacity: enterGot.op * sideFade,
               whiteSpace: "nowrap",
             }}
           >
-            <span style={{ fontFamily: T.display, fontSize: 94, fontWeight: 400, color: "#FFFFFF", letterSpacing: "1px", textTransform: "uppercase" }}>
+            <span style={{ fontFamily: T.display, fontSize: 150, fontWeight: 400, color: "#FFFFFF", letterSpacing: "1px", textTransform: "uppercase", lineHeight: 1 }}>
               Got
             </span>
           </div>
-          {/* "an idea?" */}
+          {/* "AN IDEA?" — below the square; slides down on morph */}
           <div
             style={{
               position: "absolute",
-              left: `calc(50% + ${boxOffsetX}px + ${boxW / 2 + 16}px)`,
-              top: "50%",
-              transform: `translate(${sideShift + enterIdea.x}px, calc(-50% + ${enterIdea.y}px))`,
+              left: "50%",
+              top: `calc(50% + ${boxH / 2 + 40}px)`,
+              transform: `translate(-50%, calc(${sideShift + enterIdea.y}px))`,
               opacity: enterIdea.op * sideFade,
               whiteSpace: "nowrap",
             }}
@@ -322,25 +324,26 @@ export const MyCompositionVertical: React.FC = () => {
             <span
               style={{
                 fontFamily: T.display,
-                fontSize: 94,
+                fontSize: 150,
                 fontWeight: 400,
                 background: T.grad,
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 letterSpacing: "1px",
                 textTransform: "uppercase",
+                lineHeight: 1,
               }}
             >
               an idea?
             </span>
           </div>
-          {/* morphing button */}
+          {/* morphing button (bulb square → "Create a squad") */}
           <div
             style={{
               position: "absolute",
-              left: `calc(50% + ${boxOffsetX}px)`,
+              left: "50%",
               top: "50%",
-              transform: `translate(calc(-50% + ${enterBulb.x}px), calc(-50% + ${enterBulb.y}px)) scale(${(0.82 + 0.18 * enterBulb.op) * clickDip})`,
+              transform: `translate(-50%, calc(-50% + ${enterBulb.y}px)) scale(${(0.82 + 0.18 * enterBulb.op) * clickDip})`,
               opacity: enterBulb.op,
             }}
           >
@@ -351,8 +354,8 @@ export const MyCompositionVertical: React.FC = () => {
                   left: "50%",
                   top: "50%",
                   width: boxW,
-                  height: 96,
-                  borderRadius: 20,
+                  height: boxH,
+                  borderRadius: 24,
                   transform: `translate(-50%,-50%) scale(${1 + ripple * 0.7})`,
                   border: `2px solid ${T.purple}`,
                   opacity: (1 - ripple) * 0.55,
@@ -360,13 +363,13 @@ export const MyCompositionVertical: React.FC = () => {
                 }}
               />
             )}
-            <div style={{ width: boxW, height: 96 }}>
-              <ShinyButton frame={frame} hover={btnHover} press={curClick} radius={20}>
+            <div style={{ width: boxW, height: boxH }}>
+              <ShinyButton frame={frame} hover={btnHover} press={curClick} radius={24}>
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", transform: `translateY(${emojiY}px)`, opacity: bulbOp, zIndex: 2 }}>
-                  <Img src={staticFile("icons/idea-bulb.webp")} style={{ width: 54, height: 54, display: "block", objectFit: "contain" }} />
+                  <Img src={staticFile("icons/idea-bulb.webp")} style={{ width: 84, height: 84, display: "block", objectFit: "contain" }} />
                 </div>
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", transform: `translateY(${textY}px)`, opacity: ctaTxtOp, zIndex: 2, whiteSpace: "nowrap" }}>
-                  <span style={{ fontFamily: T.head, fontSize: 30, fontWeight: 700, color: T.paper, letterSpacing: "-0.4px" }}>Create a squad</span>
+                  <span style={{ fontFamily: T.head, fontSize: 38, fontWeight: 700, color: T.paper, letterSpacing: "-0.4px" }}>Create a squad</span>
                 </div>
               </ShinyButton>
             </div>
@@ -438,21 +441,23 @@ export const MyCompositionVertical: React.FC = () => {
               const lf = Math.max(0, frame - start);
               const connDraw = interpolate(lf, [8, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
               const titleOp = interpolate(lf, [14, 32], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EO });
-              const titleX = interpolate(lf, [14, 34], [18, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT });
+              const titleY = interpolate(lf, [14, 34], [16, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: DRIFT });
               const isMid = i === 1;
-              const exitY = (i === 0 ? -200 : i === 2 ? 200 : -120) * s3Exit;
+              const exitY = (i === 0 ? -220 : i === 2 ? 220 : -130) * s3Exit;
               const colOp = isMid ? 1 : 1 - s3Exit;
               const iconFade = isMid ? Math.max(0, 1 - s3Exit * 1.7) : 1;
               const titleGrow = isMid ? 1 + 0.14 * s3Exit : 1;
               return (
                 <React.Fragment key={i}>
+                  {/* illustration ABOVE, text BELOW (same order as desktop) */}
                   <div
                     style={{
                       display: "flex",
+                      flexDirection: "column",
                       alignItems: "center",
-                      gap: 30,
+                      gap: 22,
                       opacity: colOp,
-                      transform: `translateY(${exitY}px)`,
+                      transform: `translateY(${exitY}px) scale(${titleGrow})`,
                     }}
                   >
                     <div
@@ -460,7 +465,6 @@ export const MyCompositionVertical: React.FC = () => {
                         width: 188,
                         height: 188,
                         borderRadius: 38,
-                        flexShrink: 0,
                         background: `radial-gradient(circle at 50% 32%, rgba(${s.glow},0.26), ${T.paper2} 72%)`,
                         border: `1.5px solid rgba(${s.glow},0.45)`,
                         display: "flex",
@@ -478,17 +482,16 @@ export const MyCompositionVertical: React.FC = () => {
                     <h3
                       style={{
                         fontFamily: T.display,
-                        fontSize: 66,
+                        fontSize: 62,
                         fontWeight: 400,
                         color: "#FFFFFF",
                         margin: 0,
                         letterSpacing: "0.8px",
                         textTransform: "uppercase",
                         lineHeight: 1,
-                        width: 420,
+                        textAlign: "center",
                         opacity: titleOp,
-                        transform: `translateX(${titleX}px) scale(${titleGrow})`,
-                        transformOrigin: "left center",
+                        transform: `translateY(${titleY}px)`,
                       }}
                     >
                       {s.title}
@@ -498,13 +501,13 @@ export const MyCompositionVertical: React.FC = () => {
                     <div
                       style={{
                         width: 0,
-                        height: 76,
-                        marginLeft: -225,
+                        height: 64,
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
                         gap: 8,
+                        margin: "8px 0",
                         opacity: connDraw * (1 - s3Exit),
                         transform: `scaleY(${connDraw})`,
                         transformOrigin: "top center",
@@ -760,9 +763,9 @@ export const MyCompositionVertical: React.FC = () => {
         </div>
       )}
 
-      {/* ══════════ SCENE — Women in Tech (orbital) ══════════ */}
+      {/* ══════════ SCENE — Women in Tech (orbital, zoomed in for mobile) ══════════ */}
       {witActive && (
-        <div style={{ position: "absolute", inset: 0, transform: "scale(1.2)", transformOrigin: `${WIT_CX}px ${WIT_CY}px` }}>
+        <div style={{ position: "absolute", inset: 0, transform: "scale(1.42)", transformOrigin: `${WIT_CX}px ${WIT_CY}px` }}>
           <div style={{ position: "absolute", left: WIT_CX, top: WIT_CY, width: 980, height: 980, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(255,45,120,0.16) 0%, rgba(176,50,255,0.10) 44%, transparent 72%)", transform: "translate(-50%,-50%)", filter: "blur(64px)", pointerEvents: "none" }} />
           <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
             <defs>
@@ -814,7 +817,7 @@ export const MyCompositionVertical: React.FC = () => {
       {s6Active && (
         <>
           <div style={{ position: "absolute", top: "50%", left: "50%", width: 1000, height: 1000, borderRadius: "50%", background: `radial-gradient(circle,${T.accent}2E 0%,${T.purple}1E 38%,transparent 68%)`, transform: "translate(-50%,-50%)", opacity: s6GlowOp, filter: "blur(50px)" }} />
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: `scale(${1 + 0.05 * s6Close})` }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: `scale(${1.2 + 0.05 * s6Close})` }}>
             {[
               { word: "Register.", a: w1, grad: false },
               { word: "Ideate.", a: w2, grad: false },
